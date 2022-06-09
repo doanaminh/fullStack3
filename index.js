@@ -25,6 +25,7 @@ let notes = [
     },
 ]
 
+
 app.get('/', (req, res) => {
     res.send('<h1>Hello World!</h1>');
 });
@@ -71,6 +72,89 @@ app.post('/api/notes', (req, res) => {
     notes = notes.concat(note);
 
     res.json(note);
+})
+
+// =============================== EXERCISES ======================
+
+let phonebook = [
+    { 
+      "id": 1,
+      "name": "Arto Hellas", 
+      "number": "040-123456"
+    },
+    { 
+      "id": 2,
+      "name": "Ada Lovelace", 
+      "number": "39-44-5323523"
+    },
+    { 
+      "id": 3,
+      "name": "Dan Abramov", 
+      "number": "12-43-234345"
+    },
+    { 
+      "id": 4,
+      "name": "Mary Poppendieck", 
+      "number": "39-23-6423122"
+    }
+];
+
+app.get('/api/persons', (req, res) => {
+    res.send(phonebook);
+});
+
+app.get('/info', (req, res) => {
+    const count = phonebook.length;
+    const time = new Date();
+    console.log(count, time);
+    res.send(`Phonebook has info for ${count} people. \n ${time}`);
+});
+
+app.get('/api/persons/:id', (req, res) => {
+    const id = req.params.id;
+    const person = phonebook.find(item => item.id == id);
+    
+    if (!person) {
+        return res.status(404).end();
+    } else {
+        res.send(person);
+    }
+});
+
+app.delete('/api/persons/:id', (req, res) => {
+    const id = req.params.id;
+    phonebook = phonebook.filter(item => item.id != id);
+    
+    res.status(204).end();
+});
+
+app.post('/api/persons', (req, res) => {
+    const newId = Math.round(Math.random()*1000000000);
+    const body = req.body;
+
+    if (!body.name || !body.number) {
+        return res.status(400).json({
+            error: 'name/number not provided'
+        });
+    };
+
+    if (phonebook.find(item => item.name)) {
+        return res.status(400).json({
+            error: 'name must be unique'
+        });
+    };
+
+    const person = {
+        id: newId,
+        name: body.name,
+        number: body.number,
+    };
+
+    phonebook.push(person);
+
+    res.json(person);
+
+
 })
 
 
